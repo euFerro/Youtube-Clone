@@ -1,0 +1,35 @@
+.video-title {
+    font-size: larger;
+}
+
+#videoPlayer {
+    
+}
+.videoplayer-container {
+    overflow: hidden;
+    border-radius: 20px;
+    position: relative;
+}
+.video {
+    position: relative;
+}
+.channel-name {
+    font-size: large;
+}
+.subscribers-str {
+    font-size: small;
+}
+.video-desc {
+    background-color: #eee;
+    border-radius: 10px;
+    height: auto;
+    padding: 15px;
+}
+.video-views-time {
+    font-weight: 300;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}

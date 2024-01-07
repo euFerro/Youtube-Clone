@@ -1,0 +1,19 @@
+
+
+<div class="container">
+
+    <app-channelbox
+        *ngFor="let channel of channels; let i = index"
+        [channel_name]="channel.name"
+        [channel_img_url]="channel.logo_url"
+        [channel_description]="channel.description"
+        [channel_url]="'/channel/'+channel.id"
+        [channel_subs]="channel.subscribers_count"
+        [username]="channel.owner_username">
+    </app-channelbox>
+
+    <div class="d-flex align-items-center justify-content-center" *ngIf="!channels">
+        No Chennels Here Yet.
+    </div>
+
+</div>

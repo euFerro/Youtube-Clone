@@ -1,0 +1,17 @@
+<div class="channelbox-container">
+
+    <div class="channelbox-inner-container">
+        <div class="channelbox-img-container">
+            <a *ngIf="channel_url" routerLink="{{channel_url}}">
+                <app-profilephoto *ngIf="channel_img_url" [size]="130" src="{{channel_img_url}}"></app-profilephoto>
+            </a>
+        </div>
+        <div class="channelbox-info-conatainer">
+            <div class="channelbox-title" *ngIf="channel_name"><strong>{{channel_name}}</strong></div>
+            <div class="channelbox-username-subs">&#64;{{username}} &bull; {{getFormattedNumber(parseInt(channel_subs))}} subscribers</div>
+            <div class="channelbox-desc" *ngIf="channel_description">{{channel_description.substring(0,50)}}...</div>
+        </div>
+    </div>
+    <hr>
+
+</div>

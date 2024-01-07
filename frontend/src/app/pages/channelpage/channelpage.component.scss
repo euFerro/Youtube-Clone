@@ -1,0 +1,31 @@
+.channel-header {
+    display: flex;
+    flex-direction: row;
+}
+.channel-img-container {
+    width: max-content;
+    height: max-content;
+    border-radius: 50%;
+}
+.channel-img {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+}
+
+.channel-info {
+    display: flex;
+    flex-direction: column;
+    padding-left: 15px;
+}
+.channel-name {
+    font-size: 32px;
+    font-weight: 900;
+}
+
+@media screen and (max-width: 600px) {
+    .channel-name {
+        font-size: 24px;
+        font-weight: 900;
+    }
+}

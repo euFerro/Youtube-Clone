@@ -1,0 +1,22 @@
+
+.channelbox-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.channelbox-inner-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.channelbox-title {
+    font-size: larger;
+}
+.channelbox-username-subs {
+    font-size: small;
+}
+.channelbox-desc {
+    font-size: small;
+}

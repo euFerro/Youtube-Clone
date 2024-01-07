@@ -1,0 +1,22 @@
+
+<div id="vbx-container-{{video_id}}" (click)="this.callback_action()" class="videobox-container mb-2">
+    <div class="videobox-thumbnail-container">
+        <a routerLink="/watch" [queryParams]="{v:video_id}">
+            <img class="videobox-thumbnail-img" src="{{thumbnail_url}}" alt="video thumbnail image">
+            <div id="red-loading-bar-{{video_id}}" class="red-loading-bar" style="display: none; height: 4px; width: 0%; background-color: red; animation-play-state: running;"></div>
+        </a>
+    </div>
+    <div class="videobox-info-container">
+        <div class="videobox-channel-img-container mt-1">
+            <a routerLink="/channel/{{channel_id}}">
+                <img class="videobox-channel-img" src="{{channel_img_url}}" alt="channel logo image">
+            </a>
+        </div>
+        <div class="videobox-info mt-1">
+            <a routerLink="/watch" [queryParams]="{v:video_id}">
+                <div style="max-width: 200px;" class="videobox-title">{{title}}</div>
+                <div class="videobox-views-date">{{viewsString}} views &bull; {{timeDiffString}}</div>
+            </a>
+        </div>
+    </div>
+</div>
