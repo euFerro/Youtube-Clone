@@ -87,6 +87,6 @@ export class VideoboxComponent implements OnInit, AfterViewInit {
 }
 ```
 There are some input properties to the component so it renders with the correct info of a video, the parent page fetches the data and then dinamically renders the videos boxes to the screen. there are some fancy eye candy animations to the thumbnails with a red loading bar. This is the html for the video box using the @Input() decorator properties.
-![videobox.component.html](videobox.component.html)
+![videobox.component.html](videobox.component.html.png)
 
 ### Backend
