@@ -32,7 +32,7 @@ In the frontend there are a few angular components (they are separeted in two fo
 * navbar
 * profilephoto
 
-###### videobox.component.ts
+##### videobox.component.ts
 It is a representaion of the video thumbnail and other info like views and title:
 ```
 import { AfterViewInit, Component, INJECTOR, Input, OnInit } from '@angular/core';
@@ -86,5 +86,7 @@ export class VideoboxComponent implements OnInit, AfterViewInit {
 
 }
 ```
+There are some input properties to the component so it renders with the correct info of a video, the parent page fetches the data and then dinamically renders the videos boxes to the screen. there are some fancy eye candy animations to the thumbnails with a red loading bar. This is the html for the video box using the @Input() decorator properties.
+![videobox.component.html](videobox.component.html)
 
 ### Backend
