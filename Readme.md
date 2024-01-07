@@ -34,7 +34,7 @@ In the frontend there are a few angular components (they are separeted in two fo
 
 ##### videobox.component.ts
 It is a representaion of the video thumbnail and other info like views and title:
-```
+```ts
 import { AfterViewInit, Component, INJECTOR, Input, OnInit } from '@angular/core';
 import { getTimeDiffFromNow, getFormattedNumber } from "src/utils/formatter";
 
@@ -87,6 +87,28 @@ export class VideoboxComponent implements OnInit, AfterViewInit {
 }
 ```
 There are some input properties to the component so it renders with the correct info of a video, the parent page fetches the data and then dinamically renders the videos boxes to the screen. there are some fancy eye candy animations to the thumbnails with a red loading bar. This is the html for the video box using the @Input() decorator properties.
-![videobox.component.html](videobox.component.html.png)
+```html
+<div id="vbx-container-{{video_id}}" (click)="this.callback_action()" class="videobox-container mb-2">
+    <div class="videobox-thumbnail-container">
+        <a routerLink="/watch" [queryParams]="{v:video_id}">
+            <img class="videobox-thumbnail-img" src="{{thumbnail_url}}" alt="video thumbnail image">
+            <div id="red-loading-bar-{{video_id}}" class="red-loading-bar" style="display: none; height: 4px; width: 0%; background-color: red; animation-play-state: running;"></div>
+        </a>
+    </div>
+    <div class="videobox-info-container">
+        <div class="videobox-channel-img-container mt-1">
+            <a routerLink="/channel/{{channel_id}}">
+                <img class="videobox-channel-img" src="{{channel_img_url}}" alt="channel logo image">
+            </a>
+        </div>
+        <div class="videobox-info mt-1">
+            <a routerLink="/watch" [queryParams]="{v:video_id}">
+                <div style="max-width: 200px;" class="videobox-title">{{title}}</div>
+                <div class="videobox-views-date">{{viewsString}} views &bull; {{timeDiffString}}</div>
+            </a>
+        </div>
+    </div>
+</div>
+```
 
 ### Backend
