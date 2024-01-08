@@ -306,4 +306,472 @@ HTML Template (ignore the giant svg logo):
 
 ```
 
+#### channellistpage.component.ts
+It is a page that renders a list of all channels (channelbox components), this is the component that actually fetch the data for the channels.
+```ts
+import { Component, OnInit } from '@angular/core';
+import { getFormattedNumber } from 'src/utils/formatter';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-channellistpage',
+  templateUrl: './channellistpage.component.html',
+  styleUrls: ['./channellistpage.component.scss']
+})
+export class ChannellistpageComponent implements OnInit {
+
+  channels: any = undefined;
+
+  getChannels() {
+
+    fetch('http://localhost:8000/all_channels', {
+      method: 'GET',
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(response => {
+      this.channels = response.all_channels;
+      console.log(this.channels);
+    })
+  }
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    this.getChannels();
+    
+  }
+
+}
+
+```
+HTML Template:
+```html
+<div class="container">
+
+    <app-channelbox
+        *ngFor="let channel of channels; let i = index"
+        [channel_name]="channel.name"
+        [channel_img_url]="channel.logo_url"
+        [channel_description]="channel.description"
+        [channel_url]="'/channel/'+channel.id"
+        [channel_subs]="channel.subscribers_count"
+        [username]="channel.owner_username">
+    </app-channelbox>
+
+    <div class="d-flex align-items-center justify-content-center" *ngIf="!channels">
+        No Chennels Here Yet.
+    </div>
+
+</div>
+```
+
+#### channelpage.component.ts
+This component represents a specific channel page, with all it's videos and info like name, description, etc...
+```ts
+import { Component, Input, OnInit, inject } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { getFormattedNumber, getTimeDiffFromNow } from 'src/utils/formatter';
+
+@Component({
+  selector: 'app-channelpage',
+  templateUrl: './channelpage.component.html',
+  styleUrls: ['./channelpage.component.scss']
+})
+export class ChannelpageComponent implements OnInit {
+
+  private activatedRoute = inject(ActivatedRoute);
+  private channel_id: number | undefined = undefined;
+  channel: any = undefined; 
+  subscribers_str: string | undefined = undefined;
+  joined_date_str: string | undefined = undefined;
+  
+
+  videos: any = undefined;
+
+  fetchChannel() {
+    fetch('http://localhost:8000/channel/'+this.channel_id)
+    .then(response => response.json())
+    .then(res => {
+      this.channel = JSON.parse(res.channel);
+      console.log(this.channel);
+      this.subscribers_str = getFormattedNumber(this.channel.subscribers_count);
+      this.joined_date_str = getTimeDiffFromNow(new Date(this.channel.created_at));
+    })
+  }
+
+  fetchChannelVideos() {
+    fetch('http://localhost:8000/videos_by_channel_id/'+this.channel_id)
+    .then(response => response.json())
+    .then(response => {
+      this.videos = response.videos;
+      console.log(response.videos);
+        
+    })
+  }
+
+  ngOnInit(): void {
+    this.channel_id = this.activatedRoute.snapshot.params['id']
+    this.fetchChannel();
+    if (this.channel_id !== undefined) {
+      this.fetchChannelVideos();
+    }
+  }
+
+}
+
+```
+HTML Template:
+```html
+
+<main>
+
+    <div class="container">
+
+        <div class="channel-header pt-3" *ngIf="channel">
+            <div class="channel-img-container">
+                <img class="channel-img" src="{{channel.logo_url}}" alt="">
+            </div>
+            <div class="channel-info">
+                <div class="channel-name">
+                    {{channel.name}}
+                </div>
+                <div>&commat;{{channel.owner_username}}</div>
+                <div class="channel-description">
+                    <strong>ABOUT:</strong>
+                    <div>{{channel.description.substring(0,150)}}...</div>
+                </div>
+                <div>
+                    Joined &bull; {{joined_date_str}}
+                </div>
+                <div>
+                    <strong>{{subscribers_str}}</strong> subscribers
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="channel-videos">
+            <div class="row">
+                <app-videobox class="mt-3 col-lg-3 col-md-4 col-sm-12"
+                    *ngFor="let video of videos; let i = index"
+                    [video_id]="video.id"
+                    [channel_id]="video.channel_id"
+                    [title]="video.name"
+                    [channel_name]="video.channel_name"
+                    [channel_img_url]="video.channel_logo_url"
+                    [thumbnail_url]="video.thumbnail_url"
+                    [date_string]="video.created_at"
+                    [video_views]="video.views">
+                </app-videobox>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+```
+
+#### homepage.component.ts
+```ts
+import { Component, OnDestroy, OnInit } from '@angular/core'
+
+@Component({
+  selector: 'app-homepage',
+  templateUrl: './homepage.component.html',
+  styleUrls: ['./homepage.component.scss']
+})
+export class HomepageComponent implements OnInit, OnDestroy {
+
+  videos: any = undefined;
+
+  constructor() {}
+
+  fetch_all_videos() {
+    fetch('http://localhost:8000/all_videos', {
+      method: 'GET'
+    })
+    .then(response => response.json())
+    .then(response => {
+      this.videos = response.all_videos;
+    })
+  }
+
+  ngOnInit(): void {
+    this.fetch_all_videos();
+  }
+
+  ngOnDestroy(): void {
+    console.log('Cleaning stuff...');
+  }
+}
+
+```
+This is a simple component that fetches all videos saved in the backend.
+HTML Template:
+```html
+
+
+<main>
+
+    <div class="container">
+        
+        <div class="row">
+
+            <app-videobox class="mt-3 col-lg-3 col-md-4 col-sm-12"
+                *ngFor="let video of videos; let i = index"
+                [video_id]="video.id"
+                [channel_id]="video.channel_id"
+                [title]="video.name"
+                [channel_name]="video.channel_name"
+                [channel_img_url]="video.channel_logo_url"
+                [thumbnail_url]="video.thumbnail_url"
+                [date_string]="video.created_at"
+                [video_views]="video.views">
+            </app-videobox>
+
+            <div *ngIf="!videos" class="d-flex align-items-center justify-content-center" style="margin-top: 50px;">
+                No Videos Here Yet.
+            </div>
+
+        </div>
+        
+    </div>
+
+</main>
+
+```
+
+#### notfound.component.ts
+This is a static component that displats a 404 not found message 
+```ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-notfound',
+  templateUrl: './notfound.component.html',
+  styleUrls: ['./notfound.component.scss']
+})
+export class NotfoundComponent {
+
+}
+
+```
+HTML Template:
+```html
+<div class="container">
+
+    <div class="not-found">
+        <i class="bi bi-question-circle-fill" style="font-size: 60px; color: red;"></i>
+        <h1><span style="color: red;">4</span>0<span style="color: red;">4</span> Not Found</h1>
+    </div>
+
+</div>
+```
+ 
 ### Backend
+In the backend there are some simple routes that delivers the content for the channels and their videos and also a video_stream route for the streaming of the byte chunck, here are the routes:
+* '' (index route delivers the built frontend application)
+* 'all_videos'
+* 'video_metadata/<int:id>'
+* 'videos_by_channel_id/<int:channel_id>'
+* 'video_stream/<int:id>'
+* 'all_channels'
+* 'channel/<int:id>'
+
+#### all_videos route
+It is a simple route that query all videos in the database using Django ORM and then build and sends a json.
+```py
+@csrf_exempt
+def all_videos(request):
+    if request.method == 'GET':
+        all_videos_objs = Video.objects.all()
+        print(all_videos_objs)
+        all_videos_list = []
+        for video in all_videos_objs:
+            all_videos_list.append({
+                "id": video.pk,
+                "channel_id": video.channel.pk,
+                "name": video.name,
+                "description": video.description,
+                "video_url": video.file.url,
+                "thumbnail_url": video.thumbnail.url,
+                "created_at": video.created_at,
+                "channel_logo_url": video.channel.logo.url,
+                "views": video.views
+            })
+        return JsonResponse({
+            "all_videos": all_videos_list
+        }, status=200)
+    else:
+        return JsonResponse({
+            "error": "The '/allvideos' endpoint only supports GET requests"
+        }, status=400)
+```
+
+#### video_metadata route
+This route queries data for a single video metadata (as the function name suggests).
+```py
+def video_metadata(request, id):
+    if request.method == 'GET':
+        try:
+            video = Video.objects.get(id=id)
+            video_json = {
+                "id": video.pk,
+                "channel_id": video.channel.pk,
+                "channel_name": video.channel.name,
+                "channel_subs": video.channel.subscribers_count,
+                "name": video.name,
+                "description": video.description,
+                "video_url": video.file.url,
+                "thumbnail_url": video.thumbnail.url,
+                "created_at": video.created_at,
+                "channel_logo_url": video.channel.logo.url,
+                "views": video.views
+            }
+            return JsonResponse({
+                    "video": video_json
+            }, status=200)
+        except Exception:
+            return JsonResponse({
+                    "error": "Error 404 - Video not found." 
+            }, status=404)
+```
+
+#### videos_by_channel_id route
+Query all videos from a certain channel bases on its ID and returns a list of video metadata formatted as json objects. 
+```py
+def videos_by_channel_id(request, channel_id):
+    if request.method == 'GET':
+        try:
+            channel = Channel.objects.get(id=channel_id)
+            videos = Video.objects.filter(channel=channel)
+            video_json_list = []
+            for video in videos:
+                video_json_list.append({
+                    "id": video.pk,
+                    "channel_id": video.channel.pk,
+                    "channel_name": video.channel.name,
+                    "channel_subs": video.channel.subscribers_count,
+                    "name": video.name,
+                    "description": video.description,
+                    "video_url": video.file.url,
+                    "thumbnail_url": video.thumbnail.url,
+                    "created_at": video.created_at,
+                    "channel_logo_url": video.channel.logo.url,
+                    "views": video.views
+                })
+            return JsonResponse({
+                "videos": video_json_list 
+            }, status=200)
+        
+        except Exception:
+            return JsonResponse({
+                "error": "Code 404 - Channel Not Found"
+            }, status=404)
+        
+    else:
+        return JsonResponse({'error': 'Code 400 - Bad Request'}, status=400)
+```
+
+#### channel route
+Gets a channel data based on it's id and returns a json object.
+```py
+def channel(request, id):
+    if request.method == 'GET':
+        try:
+            channel = Channel.objects.get(id=id)
+            channel_json = {
+                "id": channel.pk,
+                "name": channel.name,
+                "description": channel.description,
+                "logo_url": channel.logo.url,
+                "subscribers_count": channel.subscribers_count,
+                "owner_username": channel.user.username,
+                "owner_id": channel.user.pk,
+                "created_at": channel.created_at.isoformat()
+            }
+            print(channel_json)
+            return JsonResponse({
+                "channel": json.dumps(channel_json)
+            }, status=200)
+        except Exception:
+            return JsonResponse({
+                "error": "Error 404 - Channel not found."
+            }, status=404)
+```
+
+#### all_channels route
+This route get all the channels stored in the database and send them as a json object.
+```py
+@csrf_exempt
+def all_channels(request):
+    if request.method == 'GET':
+        try:
+            all_channels_objs = Channel.objects.all()
+            channels_list = []
+            for channel in all_channels_objs:
+                channels_list.append({
+                    "id": channel.pk,
+                    "name": channel.name,
+                    "description": channel.description,
+                    "logo_url": channel.logo.url,
+                    "subscribers_count": channel.subscribers_count,
+                    "owner_username": channel.user.username,
+                    "owner_id": channel.user.pk,
+                })
+            response = JsonResponse({
+                "all_channels": channels_list,
+            }, status=200)
+            return response
+        
+        except Exception:
+            return JsonResponse({
+                "error": "There is still no channel :)"
+            }, status=200)
+```
+
+#### video_stream route
+This streamming route is quite simple it gets the video file path by the video id sent in the request, first it parses the header for the content range heeader and if it finds it it is a partial content reuqest and then get the video with the determined id, sets the chunck size and set proper start and end bytes setting  the respoinse headers so that the browser player parses it and knows where  in the video you are, open the video reading it's bytes and send it as a file response provided by the django framework that set the body and headers automatically. 
+```py
+def video_stream(request, id):
+    range: str = request.headers.get('range')
+    if range == None:
+        return JsonResponse({
+            "error": f"Request requires range header {range==None}"
+        }, status=400)
+    
+    try:
+        video_obj = Video.objects.get(id=id)
+        video_file_path = video_obj.file.path
+        print(video_obj.name, 'id=', video_obj.pk)
+
+    except Exception:
+        return JsonResponse({
+            'error': '404 Video Not Found'
+        }, status=404)
+    
+    video_size = os.path.getsize(video_file_path)
+
+    CHUNK_SIZE = 1048576 # bytes (1MB)
+    start = int(range.split('=')[1].split('-')[0])
+    end = min(int(start) + CHUNK_SIZE, video_size - 1)
+
+    try:
+        response = FileResponse(open(video_file_path, 'rb'))
+        response['Content-Range'] = f'bytes={start}-{end}/{video_size}'
+        response['Accept-Ranges'] = 'bytes'
+
+    except FileNotFoundError:
+        return JsonResponse({
+            "error": "File Not Found"
+        }, status=404)
+
+    return response
+```
+
+# The END :)
